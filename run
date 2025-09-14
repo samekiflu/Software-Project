@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import sys
+
+def install_dependencies():
+    print("hello install")
+
+def process_url_file(url_file_path):
+    print("hello process url")
+
+def run_tests():
+    print("hello tests")
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: ./run [install|test|URL_FILE]")
+        sys.exit(1)
+
+    cmd = sys.argv[1]
+
+    if cmd == "install":
+        install_dependencies()
+    elif cmd == "test":
+        run_tests()
+    else:
+        
+        process_url_file(cmd)
+
+if __name__ == "__main__":
+    main()
