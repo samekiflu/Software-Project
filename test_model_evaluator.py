@@ -287,7 +287,6 @@ class TestModelEvaluator(unittest.TestCase):
         """Test 23: Logging setup with silent level"""
         with patch.dict(os.environ, {'LOG_LEVEL': '0'}):
             self.evaluator.setup_logging()
-            # Should not raise any exceptions
 
     def test_setup_logging_with_file(self):
         """Test 24: Logging setup with file output"""
@@ -297,7 +296,6 @@ class TestModelEvaluator(unittest.TestCase):
         try:
             with patch.dict(os.environ, {'LOG_LEVEL': '1', 'LOG_FILE': temp_log_file}):
                 self.evaluator.setup_logging()
-                # Should not raise any exceptions
                 self.assertTrue(os.path.exists(temp_log_file))
         finally:
             if os.path.exists(temp_log_file):
