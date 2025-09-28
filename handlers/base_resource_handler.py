@@ -74,10 +74,12 @@ class BaseResourceHandler(ABC):
 
         license_lower = license_id.lower().strip()
 
-        # Accepted SPDX license identifiers and common names (Apache excluded)
+        # Accepted SPDX license identifiers and common names
         accepted_licenses = {
             # MIT
             'mit', 'mit license',
+            # Apache
+            'apache', 'apache-2.0', 'apache 2.0', 'apache license',
             # BSD variants
             'bsd', 'bsd-2-clause', 'bsd-3-clause', 'bsd license',
             # GPL variants
@@ -101,9 +103,10 @@ class BaseResourceHandler(ABC):
 
         text_lower = text.lower()
 
-        # Accepted licenses: MIT, BSD, GPLv2, LGPLv2.1, LGPLv3, CC0 (Apache excluded)
+        # Accepted licenses: MIT, Apache, BSD, GPLv2, LGPLv2.1, LGPLv3, CC0
         accepted_licenses = [
             'mit license', 'mit',
+            'apache license', 'apache', 'apache-2.0', 'apache 2.0',
             'bsd license', 'bsd',
             'gpl-2.0', 'gplv2', 'gpl v2', 'gnu general public license version 2',
             'lgpl-2.1', 'lgplv2.1', 'lgpl v2.1',
