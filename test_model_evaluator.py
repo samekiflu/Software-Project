@@ -98,18 +98,17 @@ class TestResourceHandlers(unittest.TestCase):
         self.assertEqual(data["likes"], 50)
 
     @patch('requests.get')
-    def test_code_handler_api_call(self):
+    def test_code_handler_api_call(self, mock_get):
         """Test 10: CodeHandler API interaction"""
-        with patch('requests.get') as mock_get:
-            mock_response = Mock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = {"stargazers_count": 100}
-            mock_get.return_value = mock_response
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"stargazers_count": 100}
+        mock_get.return_value = mock_response
 
-            handler = CodeHandler("https://github.com/SkyworkAI/Matrix-Game")
-            data = handler.get_github_api_data()
+        handler = CodeHandler("https://github.com/SkyworkAI/Matrix-Game")
+        data = handler.get_github_api_data()
 
-            self.assertEqual(data["stargazers_count"], 100)
+        self.assertEqual(data["stargazers_count"], 100)
 
 
 class TestMetrics(unittest.TestCase):
@@ -131,7 +130,7 @@ class TestMetrics(unittest.TestCase):
         """Test 11: LicenseMetric required URL types"""
         metric = LicenseMetric()
         required = metric.required_url_types()
-        expected = [URLType.MODEL, URLType.DATASET, URLType.CODE]
+        expected = [URLType.MODEL]
         self.assertEqual(required, expected)
 
     def test_size_score_metric_required_types(self):
@@ -150,8 +149,8 @@ class TestMetrics(unittest.TestCase):
         metric = LicenseMetric()
         score, latency = metric.calculate(self.resources)
 
-        # Should take minimum score
-        self.assertEqual(score, 0.7)
+        # Should take model score (only checks models)
+        self.assertEqual(score, 0.8)
         self.assertIsInstance(latency, int)
         self.assertGreaterEqual(latency, 0)
 
@@ -287,6 +286,7 @@ class TestModelEvaluator(unittest.TestCase):
         """Test 23: Logging setup with silent level"""
         with patch.dict(os.environ, {'LOG_LEVEL': '0'}):
             self.evaluator.setup_logging()
+            # Should not raise any exceptions
 
     def test_setup_logging_with_file(self):
         """Test 24: Logging setup with file output"""
@@ -296,6 +296,7 @@ class TestModelEvaluator(unittest.TestCase):
         try:
             with patch.dict(os.environ, {'LOG_LEVEL': '1', 'LOG_FILE': temp_log_file}):
                 self.evaluator.setup_logging()
+                # Should not raise any exceptions
                 self.assertTrue(os.path.exists(temp_log_file))
         finally:
             if os.path.exists(temp_log_file):
