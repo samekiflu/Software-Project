@@ -53,7 +53,7 @@ https://github.com/google-research/bert, https://huggingface.co/datasets/bookcor
 
 ---
 
-## 🔧 Environment Variables
+## Environment Variables
 
 ### Logging Configuration
 - LOG_LEVEL: Controls logging verbosity  
@@ -64,7 +64,7 @@ https://github.com/google-research/bert, https://huggingface.co/datasets/bookcor
 
 ---
 
-## 📊 Metrics
+## Metrics
 
 The system evaluates models using 8 weighted metrics:
 
@@ -82,7 +82,7 @@ Net Score = Σ(metric_score × weight) / Σ(weights)
 
 ---
 
-## 📑 Output Format
+## Output Format
 Results are returned in NDJSON format:
 
 {
@@ -115,7 +115,7 @@ Results are returned in NDJSON format:
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Project Structure
 ├── run                     # Main entry point script  
