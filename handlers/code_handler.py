@@ -1,5 +1,6 @@
 from typing import Dict, Any
 import requests
+import os
 from urllib.parse import urlparse
 
 from .base_resource_handler import BaseResourceHandler
@@ -28,11 +29,22 @@ class CodeHandler(BaseResourceHandler):
 
         try:
             api_url = f"https://api.github.com/repos/{self.repo_path}"
-            response = requests.get(api_url, timeout=10)
+            headers = {}
+
+            # Add GitHub token if available
+            github_token = os.environ.get('GITHUB_TOKEN')
+            if github_token:
+                headers['Authorization'] = f'token {github_token}'
+
+            response = requests.get(api_url, headers=headers, timeout=10)
             if response.status_code == 200:
                 data = response.json()
                 self._cache_set('github_api_data', data)
                 return data
+            elif response.status_code == 401:
+                self.logger.error("GitHub API authentication failed - invalid token")
+                # Continue without authentication for rate-limited access
+                return {}
         except Exception as e:
             self.logger.error(f"Error fetching GitHub API data: {e}")
 
@@ -43,10 +55,20 @@ class CodeHandler(BaseResourceHandler):
         try:
             # Search for evaluation-related files
             search_url = f"https://api.github.com/search/code?q=repo:{self.repo_path}+evaluation+test+benchmark"
-            response = requests.get(search_url, timeout=10)
+            headers = {}
+
+            # Add GitHub token if available
+            github_token = os.environ.get('GITHUB_TOKEN')
+            if github_token:
+                headers['Authorization'] = f'token {github_token}'
+
+            response = requests.get(search_url, headers=headers, timeout=10)
             if response.status_code == 200:
                 results = response.json()
                 return results.get('total_count', 0) > 0
+            elif response.status_code == 401:
+                self.logger.error("GitHub API authentication failed - invalid token")
+                return False
         except Exception as e:
             self.logger.error(f"Error checking evaluation code: {e}")
 
