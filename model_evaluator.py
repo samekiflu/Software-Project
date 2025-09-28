@@ -14,7 +14,7 @@ from metrics.base_metric import BaseMetric
 
 
 class ModelEvaluator:
-    """Main orchestrator for evaluating models with their associated datasets and code"""
+    """Main thing for evaluating models with their associated datasets and code"""
 
     def __init__(self, max_workers: int = 4):
         self.url_classifier = URLClassifier()
@@ -25,15 +25,9 @@ class ModelEvaluator:
         self.metrics = {name: metric_class() for name, metric_class in METRIC_CLASSES.items()}
 
     def evaluate_urls(self, urls: List[str]) -> List[Dict[str, Any]]:
-        """
-        Evaluate a list of URLs and return results for MODEL URLs only
-
-        Args:
-            urls: List of URLs to evaluate
-
-        Returns:
-            List of evaluation results for model URLs
-        """
+     
+        # looks through a list of URLs and return results for MODEL URLs only
+     
         # Group URLs by type
         grouped_urls = self.url_classifier.group_urls_by_type(urls)
 
