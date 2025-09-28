@@ -172,8 +172,6 @@ class ModelEvaluator:
 
     def _calculate_net_score(self, metric_results: Dict[str, Dict[str, Any]]) -> Tuple[float, int]:
         """Calculate weighted net score"""
-        start_time = time.time()
-
         # Define weights based on Sarah's priorities
         weights = {
             "license": 0.2,           # High priority - legal compliance
@@ -185,14 +183,16 @@ class ModelEvaluator:
             "dataset_quality": 0.1,   # Data quality matters
             "code_quality": 0.1       # Maintainability
         }
-
+    
         weighted_sum = 0.0
         total_weight = 0.0
-
+        total_latency = 0
+    
         for metric_name, weight in weights.items():
             if metric_name in metric_results:
                 score = metric_results[metric_name]["score"]
-
+                latency = metric_results[metric_name]["latency"]
+    
                 # Handle size_score which is a dict
                 if isinstance(score, dict):
                     # Average the hardware scores
@@ -200,16 +200,14 @@ class ModelEvaluator:
                         score = sum(score.values()) / len(score.values())
                     else:
                         score = 0.0
-
+    
                 weighted_sum += score * weight
                 total_weight += weight
-
+                total_latency += latency
+    
         net_score = weighted_sum / total_weight if total_weight > 0 else 0.0
-
-        end_time = time.time()
-        latency_ms = int((end_time - start_time) * 1000)
-
-        return net_score, latency_ms
+    
+        return net_score, total_latency
 
     def evaluate_from_file(self, url_file_path: str) -> List[Dict[str, Any]]:
         """
