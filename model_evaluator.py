@@ -14,7 +14,7 @@ from metrics.base_metric import BaseMetric
 
 
 class ModelEvaluator:
-    """Main thing for evaluating models with their associated datasets and code"""
+    """Main orchestrator for evaluating models with their associated datasets and code"""
 
     def __init__(self, max_workers: int = 4):
         self.url_classifier = URLClassifier()
@@ -25,9 +25,15 @@ class ModelEvaluator:
         self.metrics = {name: metric_class() for name, metric_class in METRIC_CLASSES.items()}
 
     def evaluate_urls(self, urls: List[str]) -> List[Dict[str, Any]]:
-     
-        # looks through a list of URLs and return results for MODEL URLs only
-     
+        """
+        Evaluate a list of URLs and return results for MODEL URLs only
+
+        Args:
+            urls: List of URLs to evaluate
+
+        Returns:
+            List of evaluation results for model URLs
+        """
         # Group URLs by type
         grouped_urls = self.url_classifier.group_urls_by_type(urls)
 
@@ -91,7 +97,12 @@ class ModelEvaluator:
         """Evaluate a single model with available resources"""
         try:
             model_handler = ModelHandler(model_url)
-            model_name = model_handler.model_id or "unknown"
+            # Extract just the model name part (e.g., "bert-base-uncased" from "google-bert/bert-base-uncased")
+            model_id = model_handler.model_id or "unknown"
+            if "/" in model_id:
+                model_name = model_id.split("/")[-1]  # Get the last part after the slash
+            else:
+                model_name = model_id
 
             # Calculate metrics in parallel
             metric_results = self._calculate_metrics_parallel(resources)
@@ -183,16 +194,16 @@ class ModelEvaluator:
             "dataset_quality": 0.1,   # Data quality matters
             "code_quality": 0.1       # Maintainability
         }
-    
+
         weighted_sum = 0.0
         total_weight = 0.0
         total_latency = 0
-    
+
         for metric_name, weight in weights.items():
             if metric_name in metric_results:
                 score = metric_results[metric_name]["score"]
                 latency = metric_results[metric_name]["latency"]
-    
+
                 # Handle size_score which is a dict
                 if isinstance(score, dict):
                     # Average the hardware scores
@@ -200,13 +211,13 @@ class ModelEvaluator:
                         score = sum(score.values()) / len(score.values())
                     else:
                         score = 0.0
-    
+
                 weighted_sum += score * weight
                 total_weight += weight
                 total_latency += latency
-    
+
         net_score = weighted_sum / total_weight if total_weight > 0 else 0.0
-    
+
         return net_score, total_latency
 
     def evaluate_from_file(self, url_file_path: str) -> List[Dict[str, Any]]:
@@ -219,6 +230,7 @@ class ModelEvaluator:
         Returns:
             List of evaluation results
         """
+        self.logger.info(f"Starting evaluation of URL file: {url_file_path}")
         try:
             results = []
             with open(url_file_path, 'r') as f:
@@ -228,10 +240,12 @@ class ModelEvaluator:
                         # Split each line by commas and filter out empty URLs
                         line_urls = [url.strip() for url in line.split(',') if url.strip()]
                         if line_urls:
+                            self.logger.info(f"Processing line {line_num} with {len(line_urls)} URLs")
                             # Evaluate each line's URLs as a group
                             line_results = self.evaluate_urls(line_urls)
                             results.extend(line_results)
 
+            self.logger.info(f"Evaluation completed. Generated {len(results)} results")
             return results
 
         except FileNotFoundError:
@@ -257,16 +271,43 @@ class ModelEvaluator:
 
         level = logging.INFO if log_level == 1 else logging.DEBUG
 
+        # Re-enable logging first (in case it was disabled)
+        logging.disable(logging.NOTSET)
+
+        # Clear any existing handlers first
+        logging.getLogger().handlers.clear()
+
         if log_file:
-            logging.basicConfig(
-                filename=log_file,
-                level=level,
-                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-            )
+            try:
+                # Validate log file path
+                log_dir = os.path.dirname(log_file)
+                if log_dir and not os.path.exists(log_dir):
+                    # Try to create directory
+                    os.makedirs(log_dir, exist_ok=True)
+
+                # Test if we can write to the log file
+                with open(log_file, 'a') as f:
+                    pass
+
+                logging.basicConfig(
+                    filename=log_file,
+                    level=level,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    force=True
+                )
+            except (OSError, PermissionError) as e:
+                # Invalid log file path, fall back to console logging
+                print(f"Warning: Cannot write to log file '{log_file}': {e}")
+                logging.basicConfig(
+                    level=level,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    force=True
+                )
         else:
             logging.basicConfig(
                 level=level,
-                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                force=True
             )
 
 
