@@ -82,25 +82,25 @@ class CodeHandler(BaseResourceHandler):
 
         # Check for README
         if api_data.get('has_readme'):
-            score += 0.2
+            score += 0.3
 
         # Check stars
         stars = api_data.get('stargazers_count', 0)
         if stars > 100:
-            score += 0.3
+            score += 0.4
         elif stars > 10:
-            score += 0.2
+            score += 0.3
         elif stars > 0:
-            score += 0.1
+            score += 0.2
 
         # Check for recent activity
         updated_at = api_data.get('updated_at', '')
         if updated_at and '2024' in updated_at or '2023' in updated_at:
-            score += 0.2
+            score += 0.3
 
         # Check for issues/community engagement
         if api_data.get('has_issues'):
-            score += 0.1
+            score += 0.2
 
         return min(score, 1.0)
 
