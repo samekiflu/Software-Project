@@ -102,10 +102,6 @@ class CodeHandler(BaseResourceHandler):
         if api_data.get('has_issues'):
             score += 0.1
 
-        # Check for license
-        if api_data.get('license'):
-            score += 0.2
-
         return min(score, 1.0)
 
     def get_license_score(self) -> float:
