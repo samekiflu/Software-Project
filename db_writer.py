@@ -1,7 +1,7 @@
 import boto3
 import os
 
-# Optional: use environment variable for table name
+#  use environment variable for table name
 DYNAMODB_TABLE = os.getenv("DYNAMODB_TABLE", "ModelFeedbackTable")
 
 def write_to_dynamodb(item, table_name=DYNAMODB_TABLE):
