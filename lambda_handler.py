@@ -32,7 +32,7 @@ def lambda_handler(event, context):
         }
 
 
-# Optional: local test block
+# local test block
 if __name__ == "__main__":
     test_event = {
         "urls": [
