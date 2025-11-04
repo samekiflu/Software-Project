@@ -24,7 +24,7 @@ def lambda_handler(event=None, context=None):
                 "body": {"error": "Missing or invalid 'urls' in request body. Expected: {'urls': ['url1', 'url2']}."}
             }
 
-        # ⚙️ 3. Run evaluation
+        # 3. Run evaluation
         results = evaluator.evaluate_urls(urls)
 
         #  4. Return pretty JSON
@@ -40,7 +40,7 @@ def lambda_handler(event=None, context=None):
             "body": {"error": str(e)}
         }
 
-# 🎯 Local testing (run from terminal)
+#  Local testing (run from terminal)
 if __name__ == "__main__":
     # Example event for local test
     test_event = {
