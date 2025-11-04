@@ -44,7 +44,7 @@ def evaluate():
     with open("results.json", "w") as f:
         json.dump(results, f)
 
-    print("✅ Evaluation complete. Results saved to results.json")
+    print("Evaluation complete. Results saved to results.json")
 
 if __name__ == "__main__":
     evaluate()
